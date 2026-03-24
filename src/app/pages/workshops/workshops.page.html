@@ -1,0 +1,64 @@
+<section class="screen-head">
+  <p class="kicker">Area principal</p>
+  <h1>Workshops</h1>
+  <p class="sub">Clique em um item para abrir o painel de detalhe com colaboradores presentes.</p>
+</section>
+
+<section class="state" *ngIf="loading()">Carregando workshops...</section>
+<section class="state error" *ngIf="!loading() && error()">{{ error() }}</section>
+<section class="state" *ngIf="!loading() && !error() && workshops().length === 0">Nenhum workshop encontrado (204).</section>
+
+<section class="grid" *ngIf="!loading() && !error() && workshops().length > 0">
+  <article class="workshop" *ngFor="let workshop of workshops()">
+    <header>
+      <h2>{{ getWorkshopName(workshop) }}</h2>
+      <time>{{ getWorkshopDate(workshop) }}</time>
+    </header>
+    <p>{{ getWorkshopDescription(workshop) }}</p>
+    <button type="button" (click)="openWorkshopDetail(workshop)">Ver detalhe</button>
+  </article>
+</section>
+
+<div class="overlay" *ngIf="selectedWorkshop()" (click)="closeDetail()"></div>
+<aside class="detail-panel" *ngIf="selectedWorkshop() as workshop">
+  <header>
+    <div>
+      <p class="kicker">Painel de detalhes</p>
+      <h3>{{ getWorkshopName(workshop) }}</h3>
+    </div>
+    <button type="button" class="close" (click)="closeDetail()">Fechar</button>
+  </header>
+
+  <p class="detail-description">{{ getWorkshopDescription(workshop) }}</p>
+  <p class="detail-date">Data: {{ getWorkshopDate(workshop) }}</p>
+
+  <section class="state" *ngIf="detailLoading()">Carregando participantes...</section>
+  <section class="state error" *ngIf="!detailLoading() && detailError()">{{ detailError() }}</section>
+  <section class="state" *ngIf="!detailLoading() && !detailError() && participantes().length === 0">
+    Nenhuma presenca registrada para este workshop.
+  </section>
+
+  <section class="presence-chart" *ngIf="!detailLoading() && !detailError()">
+    <h4>Participacao no workshop</h4>
+    <div class="chart-row">
+      <div class="pie" [style.background]="getPieStyle()">
+        <span>{{ getPresencePercentLabel() }}</span>
+      </div>
+
+      <ul>
+        <li><span class="dot present"></span> Presentes: {{ getPresentesCount() }}</li>
+        <li><span class="dot absent"></span> Ausentes: {{ getAusentesCount() }}</li>
+        <li><span class="dot total"></span> Total: {{ totalColaboradores() }}</li>
+      </ul>
+    </div>
+  </section>
+
+  <ul class="participants" *ngIf="!detailLoading() && !detailError() && participantes().length > 0">
+    <li *ngFor="let participante of participantes()">
+      <div>
+        <strong>{{ participante.nome }}</strong>
+      </div>
+      <time>{{ participante.dataHoraCheckIn ? (participante.dataHoraCheckIn | date : 'dd/MM/yyyy HH:mm') : 'Sem check-in' }}</time>
+    </li>
+  </ul>
+</aside>

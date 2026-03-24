@@ -1,1 +1,54 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Chivo:wght@400;600;700;800&family=Syne:wght@600;700&display=swap');
+
+:root {
+	--font-body: 'Chivo', 'Segoe UI', sans-serif;
+	--font-display: 'Syne', 'Trebuchet MS', sans-serif;
+
+	--brand-teal-500: #00a19a;
+	--brand-teal-700: #006f6a;
+	--brand-orange-500: #ff7a4f;
+	--brand-orange-700: #bf4f2d;
+
+	--ink: #161d24;
+	--ink-soft: #4d5c6c;
+	--paper: #f8f6f1;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+	min-height: 100%;
+}
+
+body {
+	font-family: var(--font-body);
+	color: var(--ink);
+	background:
+		radial-gradient(1200px 460px at 0% -5%, rgba(0, 161, 154, 0.16), transparent 60%),
+		radial-gradient(900px 360px at 100% 0%, rgba(255, 122, 79, 0.16), transparent 58%),
+		var(--paper);
+}
+
+main,
+section,
+article,
+aside {
+	animation: rise 280ms ease-out;
+}
+
+@keyframes rise {
+	from {
+		opacity: 0;
+		transform: translateY(6px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}

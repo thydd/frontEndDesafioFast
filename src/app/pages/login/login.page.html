@@ -1,0 +1,32 @@
+<section class="login-wrap">
+  <article class="login-card">
+    <p class="eyebrow">Desafio Fast</p>
+    <h1>Entrar na plataforma</h1>
+    <p class="support">Use seu usuario de API para acessar as telas protegidas.</p>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <label for="username">Usuario</label>
+      <input id="username" formControlName="username" autocomplete="username" placeholder="admin" />
+
+      <label for="password">Senha</label>
+      <input
+        id="password"
+        type="password"
+        formControlName="password"
+        autocomplete="current-password"
+        placeholder="admin123"
+      />
+
+      <button type="submit" [disabled]="loading()">
+        {{ loading() ? 'Entrando...' : 'Entrar' }}
+      </button>
+    </form>
+
+    <p class="error" *ngIf="error()">{{ error() }}</p>
+
+    <footer>
+      <span>Dica rapida:</span>
+      <strong>admin/admin123</strong> ou <strong>reader/reader123</strong>
+    </footer>
+  </article>
+</section>

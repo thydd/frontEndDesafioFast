@@ -1,0 +1,64 @@
+<section class="screen-head">
+  <p class="kicker">Consulta geral</p>
+  <h1>Colaboradores</h1>
+  <p class="sub">Visualizacao completa de todos os colaboradores registrados.</p>
+</section>
+
+<section class="state" *ngIf="loading()">Carregando colaboradores...</section>
+<section class="state error" *ngIf="!loading() && error()">{{ error() }}</section>
+<section class="state" *ngIf="!loading() && !error() && colaboradores().length === 0">
+  Nenhum colaborador encontrado (204).
+</section>
+
+<section class="list" *ngIf="!loading() && !error() && colaboradores().length > 0">
+  <article
+    *ngFor="let colaborador of colaboradores()"
+    (click)="openColaboradorStats(colaborador)"
+    [class.selected]="selectedColaborador() === colaborador"
+  >
+    <h2>{{ getColaboradorName(colaborador) }}</h2>
+    <p>Clique para ver o grafico de participacao.</p>
+  </article>
+</section>
+
+<div class="overlay" *ngIf="selectedColaborador()" (click)="closeColaboradorStats()"></div>
+<aside class="detail-panel" *ngIf="selectedColaborador() as colaborador">
+  <header>
+    <div>
+      <p class="kicker">Detalhes do colaborador</p>
+      <h3>{{ getColaboradorName(colaborador) }}</h3>
+    </div>
+    <button type="button" class="close" (click)="closeColaboradorStats()">Fechar</button>
+  </header>
+
+  <p class="legend">Participacao em workshops</p>
+
+  <section class="state" *ngIf="statsLoading()">Carregando estatisticas...</section>
+  <section class="state error" *ngIf="!statsLoading() && statsError()">{{ statsError() }}</section>
+
+  <div class="bars" *ngIf="!statsLoading() && !statsError()">
+    <div class="bar-item">
+      <div class="bar-label">
+        <span>Participou</span>
+        <strong>{{ workshopsParticipados() }}</strong>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill participated" [style.width]="getParticipouBarWidth()"></div>
+      </div>
+    </div>
+
+    <div class="bar-item">
+      <div class="bar-label">
+        <span>Nao participou</span>
+        <strong>{{ getNaoParticipados() }}</strong>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill not-participated" [style.width]="getNaoParticipouBarWidth()"></div>
+      </div>
+    </div>
+
+    <p class="summary">
+      {{ getParticipacaoPercent() }}% de participacao ({{ workshopsParticipados() }}/{{ totalWorkshops() }} workshops)
+    </p>
+  </div>
+</aside>
