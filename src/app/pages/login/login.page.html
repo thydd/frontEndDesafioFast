@@ -2,10 +2,10 @@
   <article class="login-card">
     <p class="eyebrow">Desafio Fast</p>
     <h1>Entrar na plataforma</h1>
-    <p class="support">Use seu usuario de API para acessar as telas protegidas.</p>
+    <p class="support">Use seu usuário de API para acessar as telas protegidas.</p>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-      <label for="username">Usuario</label>
+      <label for="username">Usuário</label>
       <input id="username" formControlName="username" autocomplete="username" placeholder="admin" />
 
       <label for="password">Senha</label>
@@ -25,7 +25,7 @@
     <p class="error" *ngIf="error()">{{ error() }}</p>
 
     <footer>
-      <span>Dica rapida:</span>
+      <span>Dica rápida:</span>
       <strong>admin/admin123</strong> ou <strong>reader/reader123</strong>
     </footer>
   </article>

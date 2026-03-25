@@ -1,0 +1,138 @@
+:host {
+  display: block;
+}
+
+.screen-head {
+  margin-bottom: 1rem;
+}
+
+.kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  color: var(--brand-orange-700);
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 4vw, 2.8rem);
+  line-height: 1;
+}
+
+.sub {
+  color: var(--ink-soft);
+  margin: 0.55rem 0 0;
+}
+
+.state {
+  border-radius: 0.8rem;
+  border: 1px solid #d8dee6;
+  background: rgba(255, 255, 255, 0.82);
+  padding: 0.8rem 0.95rem;
+  margin: 0.65rem 0;
+}
+
+.state.error {
+  border-color: #f1b8aa;
+  background: #fff4f1;
+  color: #7e2819;
+}
+
+.admin-panel {
+  border-radius: 1rem;
+  border: 1px solid #d9e2ea;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0.5rem 1.2rem rgba(16, 22, 29, 0.07);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.crud-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+input,
+select {
+  border: 1px solid #cad4de;
+  border-radius: 0.65rem;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.95rem;
+}
+
+.actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.55rem;
+}
+
+button {
+  border: none;
+  border-radius: 0.7rem;
+  background: #131c23;
+  color: #fff;
+  padding: 0.55rem 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #eaf0f5;
+  color: #21303d;
+  border: 1px solid #c6d1dc;
+}
+
+button.danger {
+  background: #b4392b;
+}
+
+.feedback {
+  margin: 0.85rem 0 0;
+  color: #304555;
+  font-weight: 700;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+  gap: 0.85rem;
+}
+
+article {
+  border: 1px solid #d8e1ea;
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 0.85rem;
+}
+
+h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+small {
+  font-size: 0.82rem;
+  color: #5b6f80;
+}
+
+p {
+  margin: 0.5rem 0 0.7rem;
+  color: #304252;
+}

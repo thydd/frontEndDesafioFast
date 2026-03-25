@@ -22,6 +22,7 @@ import { AuthService } from './services/auth.service';
         <nav *ngIf="authService.session() as session; else guestMenu">
           <a routerLink="/workshops" routerLinkActive="active">Workshops</a>
           <a routerLink="/colaboradores" routerLinkActive="active">Colaboradores</a>
+          <a routerLink="/presencas" routerLinkActive="active">Presenças</a>
           <span class="badge">{{ session.username }} ({{ session.role }})</span>
           <button type="button" (click)="logout()">Sair</button>
         </nav>

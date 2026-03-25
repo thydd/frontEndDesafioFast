@@ -1,7 +1,30 @@
 <section class="screen-head">
   <p class="kicker">Consulta geral</p>
   <h1>Colaboradores</h1>
-  <p class="sub">Visualizacao completa de todos os colaboradores registrados.</p>
+  <p class="sub">Visualização completa de todos os colaboradores registrados.</p>
+</section>
+
+<section class="admin-panel" *ngIf="isAdmin()">
+  <h3>{{ isEditing() ? 'Editar colaborador' : 'Novo colaborador' }}</h3>
+  <form (ngSubmit)="submitColaborador()" class="crud-form">
+    <label>
+      Nome
+      <input
+        [value]="form().nome"
+        (input)="patchForm($any($event.target).value)"
+        placeholder="Nome do colaborador"
+      />
+    </label>
+
+    <div class="actions">
+      <button type="submit" [disabled]="saving()">
+        {{ saving() ? 'Salvando...' : isEditing() ? 'Atualizar' : 'Cadastrar' }}
+      </button>
+      <button *ngIf="isEditing()" type="button" class="secondary" (click)="cancelEdit()">Cancelar</button>
+    </div>
+  </form>
+
+  <p class="feedback" *ngIf="actionMessage()">{{ actionMessage() }}</p>
 </section>
 
 <section class="state" *ngIf="loading()">Carregando colaboradores...</section>
@@ -17,7 +40,11 @@
     [class.selected]="selectedColaborador() === colaborador"
   >
     <h2>{{ getColaboradorName(colaborador) }}</h2>
-    <p>Clique para ver o grafico de participacao.</p>
+    <p class="hint">Clique para ver o gráfico de participação.</p>
+    <div class="actions" *ngIf="isAdmin()">
+      <button type="button" class="secondary" (click)="$event.stopPropagation(); startEdit(colaborador)">Editar</button>
+      <button type="button" class="danger" (click)="$event.stopPropagation(); deleteColaborador(colaborador)">Excluir</button>
+    </div>
   </article>
 </section>
 
@@ -31,7 +58,7 @@
     <button type="button" class="close" (click)="closeColaboradorStats()">Fechar</button>
   </header>
 
-  <p class="legend">Participacao em workshops</p>
+  <p class="legend">Participação em workshops</p>
 
   <section class="state" *ngIf="statsLoading()">Carregando estatisticas...</section>
   <section class="state error" *ngIf="!statsLoading() && statsError()">{{ statsError() }}</section>
@@ -49,7 +76,7 @@
 
     <div class="bar-item">
       <div class="bar-label">
-        <span>Nao participou</span>
+        <span>Não participou</span>
         <strong>{{ getNaoParticipados() }}</strong>
       </div>
       <div class="bar-track">
@@ -58,7 +85,7 @@
     </div>
 
     <p class="summary">
-      {{ getParticipacaoPercent() }}% de participacao ({{ workshopsParticipados() }}/{{ totalWorkshops() }} workshops)
+      {{ getParticipacaoPercent() }}% de participação ({{ workshopsParticipados() }}/{{ totalWorkshops() }} workshops)
     </p>
   </div>
 </aside>

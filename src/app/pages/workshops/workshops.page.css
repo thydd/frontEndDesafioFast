@@ -27,6 +27,36 @@ h1 {
   margin: 0.55rem 0 0;
 }
 
+.admin-panel {
+  border-radius: 1rem;
+  border: 1px solid #d9e2ea;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0.5rem 1.2rem rgba(16, 22, 29, 0.07);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.crud-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+input {
+  border: 1px solid #cad4de;
+  border-radius: 0.65rem;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.95rem;
+}
+
 .state {
   border-radius: 0.8rem;
   border: 1px solid #d8dee6;
@@ -77,6 +107,12 @@ time {
   color: #2d3742;
 }
 
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 button {
   border: none;
   border-radius: 0.7rem;
@@ -85,6 +121,22 @@ button {
   padding: 0.55rem 0.85rem;
   font-weight: 700;
   cursor: pointer;
+}
+
+button.secondary {
+  background: #eaf0f5;
+  color: #21303d;
+  border: 1px solid #c6d1dc;
+}
+
+button.danger {
+  background: #b4392b;
+}
+
+.feedback {
+  margin: 0.85rem 0 0;
+  color: #304555;
+  font-weight: 700;
 }
 
 .overlay {

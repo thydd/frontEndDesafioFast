@@ -1,7 +1,48 @@
 <section class="screen-head">
-  <p class="kicker">Area principal</p>
+  <p class="kicker">Área principal</p>
   <h1>Workshops</h1>
   <p class="sub">Clique em um item para abrir o painel de detalhe com colaboradores presentes.</p>
+</section>
+
+<section class="admin-panel" *ngIf="isAdmin()">
+  <h3>{{ isEditing() ? 'Editar workshop' : 'Novo workshop' }}</h3>
+  <form (ngSubmit)="submitWorkshop()" class="crud-form">
+    <label>
+      Nome
+      <input
+        [value]="form().nome"
+        (input)="patchForm('nome', $any($event.target).value)"
+        placeholder="Nome do workshop"
+      />
+    </label>
+
+    <label>
+      Descrição
+      <input
+        [value]="form().descricao"
+        (input)="patchForm('descricao', $any($event.target).value)"
+        placeholder="Descrição"
+      />
+    </label>
+
+    <label>
+      Data e hora
+      <input
+        type="datetime-local"
+        [value]="form().data"
+        (input)="patchForm('data', $any($event.target).value)"
+      />
+    </label>
+
+    <div class="actions">
+      <button type="submit" [disabled]="saving()">
+        {{ saving() ? 'Salvando...' : isEditing() ? 'Atualizar' : 'Cadastrar' }}
+      </button>
+      <button *ngIf="isEditing()" type="button" class="secondary" (click)="cancelEdit()">Cancelar</button>
+    </div>
+  </form>
+
+  <p class="feedback" *ngIf="actionMessage()">{{ actionMessage() }}</p>
 </section>
 
 <section class="state" *ngIf="loading()">Carregando workshops...</section>
@@ -15,7 +56,11 @@
       <time>{{ getWorkshopDate(workshop) }}</time>
     </header>
     <p>{{ getWorkshopDescription(workshop) }}</p>
-    <button type="button" (click)="openWorkshopDetail(workshop)">Ver detalhe</button>
+    <div class="actions">
+      <button type="button" (click)="openWorkshopDetail(workshop)">Ver detalhe</button>
+      <button *ngIf="isAdmin()" type="button" class="secondary" (click)="startEdit(workshop)">Editar</button>
+      <button *ngIf="isAdmin()" type="button" class="danger" (click)="deleteWorkshop(workshop)">Excluir</button>
+    </div>
   </article>
 </section>
 
@@ -35,11 +80,11 @@
   <section class="state" *ngIf="detailLoading()">Carregando participantes...</section>
   <section class="state error" *ngIf="!detailLoading() && detailError()">{{ detailError() }}</section>
   <section class="state" *ngIf="!detailLoading() && !detailError() && participantes().length === 0">
-    Nenhuma presenca registrada para este workshop.
+    Nenhuma presença registrada para este workshop.
   </section>
 
   <section class="presence-chart" *ngIf="!detailLoading() && !detailError()">
-    <h4>Participacao no workshop</h4>
+    <h4>Participação no workshop</h4>
     <div class="chart-row">
       <div class="pie" [style.background]="getPieStyle()">
         <span>{{ getPresencePercentLabel() }}</span>

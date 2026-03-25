@@ -1,0 +1,79 @@
+<section class="screen-head">
+  <p class="kicker">Gestão administrativa</p>
+  <h1>Presenças</h1>
+  <p class="sub">Controle de check-ins por workshop e colaborador.</p>
+</section>
+
+<section class="state" *ngIf="loading()">Carregando dados...</section>
+<section class="state error" *ngIf="!loading() && error()">{{ error() }}</section>
+
+<section class="admin-panel" *ngIf="!loading() && !error() && isAdmin()">
+  <h3>{{ isEditing() ? 'Editar presença' : 'Nova presença' }}</h3>
+
+  <form (ngSubmit)="onSubmit()" class="crud-form">
+    <label>
+      Workshop
+      <select
+        [value]="form().workshopId ?? ''"
+        (change)="patchForm('workshopId', $any($event.target).value)"
+        [disabled]="isEditing()"
+      >
+        <option value="">Selecione...</option>
+        <option *ngFor="let workshop of workshops()" [value]="getWorkshopId(workshop)">
+          {{ getWorkshopName(workshop) }}
+        </option>
+      </select>
+    </label>
+
+    <label>
+      Colaborador
+      <select
+        [value]="form().colaboradorId ?? ''"
+        (change)="patchForm('colaboradorId', $any($event.target).value)"
+        [disabled]="isEditing()"
+      >
+        <option value="">Selecione...</option>
+        <option *ngFor="let colaborador of colaboradores()" [value]="getColaboradorId(colaborador)">
+          {{ getColaboradorName(colaborador) }}
+        </option>
+      </select>
+    </label>
+
+    <label>
+      Data/hora de check-in
+      <input
+        type="datetime-local"
+        [value]="form().dataHoraCheckIn"
+        (input)="patchForm('dataHoraCheckIn', $any($event.target).value)"
+      />
+    </label>
+
+    <div class="actions">
+      <button type="submit" [disabled]="saving()">
+        {{ saving() ? 'Salvando...' : isEditing() ? 'Atualizar' : 'Cadastrar' }}
+      </button>
+      <button *ngIf="isEditing()" type="button" class="secondary" (click)="cancelEdit()">Cancelar</button>
+    </div>
+  </form>
+
+  <p class="feedback" *ngIf="actionMessage()">{{ actionMessage() }}</p>
+</section>
+
+<section class="list" *ngIf="!loading() && !error() && presencas().length > 0">
+  <article *ngFor="let presenca of presencas()">
+    <h2>
+      {{ getWorkshopNameById(getPresencaWorkshopId(presenca)) }}
+      <small> / {{ getColaboradorNameById(getPresencaColaboradorId(presenca)) }}</small>
+    </h2>
+    <p><strong>Check-in:</strong> {{ getPresencaCheckIn(presenca) | date : 'dd/MM/yyyy HH:mm' }}</p>
+
+    <div class="actions" *ngIf="isAdmin()">
+      <button type="button" class="secondary" (click)="startEdit(presenca)">Editar</button>
+      <button type="button" class="danger" (click)="deletePresence(presenca)">Excluir</button>
+    </div>
+  </article>
+</section>
+
+<section class="state" *ngIf="!loading() && !error() && presencas().length === 0">
+  Nenhuma presença cadastrada.
+</section>

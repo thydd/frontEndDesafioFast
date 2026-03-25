@@ -51,6 +51,10 @@ export class AuthService {
     return this.session()?.accessToken ?? null;
   }
 
+  isAdmin(): boolean {
+    return this.session()?.role === 'Admin';
+  }
+
   private persistSession(session: AuthSession): void {
     localStorage.setItem(this.tokenStorageKey, session.accessToken);
     localStorage.setItem(this.userStorageKey, session.username);

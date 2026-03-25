@@ -8,7 +8,7 @@ export function getApiErrorMessage(error: unknown): string {
   }
 
   if (error.status === 0) {
-    return 'Nao foi possivel conectar com a API. Verifique se o backend esta ativo e o CORS configurado.';
+    return 'Não foi possível conectar com a API. Verifique se o backend está ativo e o CORS configurado.';
   }
 
   const body = error.error as ApiErrorResponse | string | null;
@@ -31,9 +31,9 @@ export function getApiErrorMessage(error: unknown): string {
     case 400:
       return 'Dados invalidos. Revise os campos e tente novamente.';
     case 401:
-      return 'Sessao expirada ou nao autorizada. Faca login novamente.';
+      return 'Sessão expirada ou não autorizada. Faça login novamente.';
     case 404:
-      return 'Recurso nao encontrado.';
+      return 'Recurso não encontrado.';
     case 409:
       return 'Conflito de regra de negocio.';
     default:

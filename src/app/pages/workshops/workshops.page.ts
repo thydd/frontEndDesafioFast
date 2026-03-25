@@ -1,30 +1,47 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 
 import { Colaborador } from '../../models/colaborador.model';
 import { Presenca, WorkshopParticipante } from '../../models/presenca.model';
 import { Workshop } from '../../models/workshop.model';
+import { AuthService } from '../../services/auth.service';
 import { ColaboradoresService } from '../../services/colaboradores.service';
 import { PresencasService } from '../../services/presencas.service';
-import { WorkshopsService } from '../../services/workshops.service';
+import { WorkshopPayload, WorkshopsService } from '../../services/workshops.service';
 import { getApiErrorMessage } from '../../utils/api-error.util';
+
+interface WorkshopForm {
+  nome: string;
+  descricao: string;
+  data: string;
+}
 
 @Component({
   selector: 'app-workshops-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './workshops.page.html',
   styleUrl: './workshops.page.css'
 })
 export class WorkshopsPage implements OnInit {
+  private readonly authService = inject(AuthService);
   private readonly workshopsService = inject(WorkshopsService);
   private readonly presencasService = inject(PresencasService);
   private readonly colaboradoresService = inject(ColaboradoresService);
 
   readonly loading = signal(false);
+  readonly saving = signal(false);
   readonly error = signal('');
+  readonly actionMessage = signal('');
   readonly workshops = signal<Workshop[]>([]);
+  readonly editingWorkshopId = signal<number | null>(null);
+  readonly form = signal<WorkshopForm>({
+    nome: '',
+    descricao: '',
+    data: ''
+  });
 
   readonly selectedWorkshop = signal<Workshop | null>(null);
   readonly detailLoading = signal(false);
@@ -34,6 +51,14 @@ export class WorkshopsPage implements OnInit {
 
   ngOnInit(): void {
     this.loadWorkshops();
+  }
+
+  isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
+
+  isEditing(): boolean {
+    return this.editingWorkshopId() !== null;
   }
 
   loadWorkshops(): void {
@@ -48,6 +73,91 @@ export class WorkshopsPage implements OnInit {
       error: (error) => {
         this.error.set(getApiErrorMessage(error));
         this.loading.set(false);
+      }
+    });
+  }
+
+  patchForm(field: keyof WorkshopForm, value: string): void {
+    this.form.set({
+      ...this.form(),
+      [field]: value
+    });
+  }
+
+  submitWorkshop(): void {
+    if (!this.isAdmin() || this.saving()) {
+      return;
+    }
+
+    const payload = this.buildWorkshopPayload();
+    if (!payload) {
+      this.actionMessage.set('Informe pelo menos o nome do workshop.');
+      return;
+    }
+
+    this.saving.set(true);
+    this.actionMessage.set('');
+
+    const editingId = this.editingWorkshopId();
+    const request$ = editingId !== null
+      ? this.workshopsService.update(editingId, payload)
+      : this.workshopsService.create(payload);
+
+    request$.subscribe({
+      next: () => {
+        this.actionMessage.set(editingId !== null ? 'Workshop atualizado com sucesso.' : 'Workshop criado com sucesso.');
+        this.resetForm();
+        this.loadWorkshops();
+        this.saving.set(false);
+      },
+      error: (error) => {
+        this.actionMessage.set(getApiErrorMessage(error));
+        this.saving.set(false);
+      }
+    });
+  }
+
+  startEdit(workshop: Workshop): void {
+    if (!this.isAdmin()) {
+      return;
+    }
+
+    this.editingWorkshopId.set(this.getWorkshopId(workshop));
+    this.form.set({
+      nome: this.getWorkshopName(workshop),
+      descricao: this.getWorkshopDescriptionOrEmpty(workshop),
+      data: this.toDateTimeLocal(this.getWorkshopDateRaw(workshop))
+    });
+    this.actionMessage.set('Editando workshop selecionado.');
+  }
+
+  cancelEdit(): void {
+    this.resetForm();
+    this.actionMessage.set('Edição cancelada.');
+  }
+
+  deleteWorkshop(workshop: Workshop): void {
+    if (!this.isAdmin() || this.saving()) {
+      return;
+    }
+
+    const id = this.getWorkshopId(workshop);
+    this.saving.set(true);
+    this.actionMessage.set('');
+
+    this.workshopsService.delete(id).subscribe({
+      next: () => {
+        this.actionMessage.set('Workshop removido com sucesso.');
+        this.loadWorkshops();
+        this.saving.set(false);
+
+        if (this.editingWorkshopId() === id) {
+          this.resetForm();
+        }
+      },
+      error: (error) => {
+        this.actionMessage.set(getApiErrorMessage(error));
+        this.saving.set(false);
       }
     });
   }
@@ -125,26 +235,14 @@ export class WorkshopsPage implements OnInit {
     const description = (workshop as Workshop & { Descricao?: string }).descricao ??
       (workshop as Workshop & { Descricao?: string }).Descricao;
 
-    return description || 'Sem descricao cadastrada.';
+    return description || 'Sem descrição cadastrada.';
   }
 
   getWorkshopDate(workshop: Workshop): string {
-    const workshopRecord = workshop as unknown as Record<string, unknown>;
-    const value = this.readStringProperty(workshopRecord, [
-      'data',
-      'Data',
-      'dataWorkshop',
-      'DataWorkshop',
-      'dataHora',
-      'DataHora',
-      'dataEvento',
-      'DataEvento',
-      'dataRealizacao',
-      'DataRealizacao'
-    ]);
+    const value = this.getWorkshopDateRaw(workshop);
 
     if (!value) {
-      return 'Data nao informada';
+      return 'Data não informada';
     }
 
     const parsedDate = new Date(value);
@@ -153,6 +251,12 @@ export class WorkshopsPage implements OnInit {
     }
 
     return parsedDate.toLocaleString('pt-BR');
+  }
+
+  getWorkshopDescriptionOrEmpty(workshop: Workshop): string {
+    return (workshop as Workshop & { Descricao?: string }).descricao ??
+      (workshop as Workshop & { Descricao?: string }).Descricao ??
+      '';
   }
 
   private mapParticipantes(
@@ -183,7 +287,7 @@ export class WorkshopsPage implements OnInit {
       .sort((a, b) => a.nome.localeCompare(b.nome));
   }
 
-  private getWorkshopId(workshop: Workshop): number {
+  getWorkshopId(workshop: Workshop): number {
     const id = (workshop as Workshop & { Id?: number }).id ??
       (workshop as Workshop & { Id?: number }).Id ??
       0;
@@ -235,5 +339,83 @@ export class WorkshopsPage implements OnInit {
     }
 
     return null;
+  }
+
+  private buildWorkshopPayload(): WorkshopPayload | null {
+    const current = this.form();
+    const nome = current.nome.trim();
+
+    if (!nome) {
+      return null;
+    }
+
+    const payload: WorkshopPayload = {
+      nome
+    };
+
+    if (current.descricao.trim()) {
+      payload.descricao = current.descricao.trim();
+    }
+
+    if (current.data) {
+      const localDateTime = this.toApiLocalDateTime(current.data);
+      payload.data = localDateTime;
+      payload.dataHora = localDateTime;
+    }
+
+    return payload;
+  }
+
+  private resetForm(): void {
+    this.editingWorkshopId.set(null);
+    this.form.set({
+      nome: '',
+      descricao: '',
+      data: ''
+    });
+  }
+
+  private getWorkshopDateRaw(workshop: Workshop): string | null {
+    const workshopRecord = workshop as unknown as Record<string, unknown>;
+    return this.readStringProperty(workshopRecord, [
+      'data',
+      'Data',
+      'dataWorkshop',
+      'DataWorkshop',
+      'dataHora',
+      'DataHora',
+      'dataEvento',
+      'DataEvento',
+      'dataRealizacao',
+      'DataRealizacao'
+    ]);
+  }
+
+  private toDateTimeLocal(value: string | null): string {
+    if (!value) {
+      return '';
+    }
+
+    const hasExplicitTimezone = /Z$|[+-]\d{2}:\d{2}$/.test(value);
+    if (!hasExplicitTimezone) {
+      return value.slice(0, 16);
+    }
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return '';
+    }
+
+    const offset = parsed.getTimezoneOffset();
+    const localDate = new Date(parsed.getTime() - offset * 60_000);
+    return localDate.toISOString().slice(0, 16);
+  }
+
+  private toApiLocalDateTime(value: string): string {
+    if (!value) {
+      return value;
+    }
+
+    return value.length === 16 ? `${value}:00` : value;
   }
 }

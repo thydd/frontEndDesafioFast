@@ -19,6 +19,11 @@ export const routes: Routes = [
 			import('./pages/colaboradores/colaboradores.page').then((m) => m.ColaboradoresPage)
 	},
 	{
+		path: 'presencas',
+		canActivate: [authGuard],
+		loadComponent: () => import('./pages/presencas/presencas.page').then((m) => m.PresencasPage)
+	},
+	{
 		path: '',
 		pathMatch: 'full',
 		redirectTo: 'workshops'
