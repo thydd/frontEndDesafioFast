@@ -1,59 +1,201 @@
 # FrontEndDesafioFast
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.5.
+Frontend Angular para integração com a API DesafioFastBackend (.NET), com autenticação JWT, visualização de dados e operações administrativas de CRUD.
 
-## Development server
+## 1. Visão geral
 
-To start a local development server, run:
+O projeto possui três áreas principais:
 
-```bash
-ng serve
+- Workshops
+	- Lista de workshops.
+	- Detalhe em modal lateral com participantes.
+	- Gráfico de pizza de presença (presentes vs ausentes).
+	- CRUD para perfil Admin.
+
+- Colaboradores
+	- Lista de colaboradores.
+	- Detalhe em modal lateral com gráfico de barras de participação em workshops.
+	- CRUD para perfil Admin.
+
+- Presenças
+	- Lista de presenças com workshop + colaborador + check-in.
+	- CRUD para perfil Admin.
+
+## 2. Perfis e permissões
+
+- Admin
+	- Pode consultar e gerenciar CRUD de workshops, colaboradores e presenças.
+
+- Reader
+	- Pode apenas consultar dados.
+	- Não visualiza ações de criação/edição/exclusão.
+
+## 3. Stack técnica
+
+- Angular 21 (standalone components)
+- TypeScript
+- RxJS
+- Angular Router
+- Angular HttpClient
+- Vitest (testes)
+
+## 4. Pré-requisitos
+
+- Node.js 20+
+- npm 10+
+- API backend em execução
+
+## 5. Configuração de ambiente
+
+O frontend usa a URL da API em:
+
+- src/environments/environment.ts
+
+Valor atual:
+
+```ts
+export const environment = {
+	apiBaseUrl: 'https://localhost:7114'
+};
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Se sua API estiver em outra URL/porta, altere esse valor.
 
-## Code scaffolding
+## 6. Como rodar
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+1. Instalar dependências:
 
 ```bash
-ng generate --help
+npm install
 ```
 
-## Building
-
-To build the project run:
+2. Rodar em modo desenvolvimento:
 
 ```bash
-ng build
+npm start
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+3. Acessar no navegador:
 
-## Running unit tests
+```text
+http://localhost:4200
+```
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## 7. Login
+
+Credenciais esperadas (conforme backend):
+
+- Admin
+	- usuário: admin
+	- senha: admin123
+
+- Reader
+	- usuário: reader
+	- senha: reader123
+
+Após login, o token JWT é armazenado localmente e anexado automaticamente nas chamadas protegidas.
+
+## 8. Rotas da aplicação
+
+- /login
+- /workshops
+- /colaboradores
+- /presencas
+
+Rotas de dados são protegidas por autenticação.
+
+## 9. Scripts úteis
+
+- Desenvolvimento:
 
 ```bash
-ng test
+npm start
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+- Build de produção:
 
 ```bash
-ng e2e
+npm run build -- --watch=false
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+- Testes:
 
-## Additional Resources
+```bash
+npm run test -- --watch=false
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## 10. Detalhes de integração com backend
+
+### 10.1. Autorização
+
+O frontend envia automaticamente:
+
+```http
+Authorization: Bearer <token>
+```
+
+Se a API retornar 401, o frontend limpa sessão e redireciona para login.
+
+### 10.2. Data/hora (workshops e presenças)
+
+Para evitar deslocamento de fuso horário, os campos datetime-local são enviados em horário local (sem sufixo Z).
+
+No caso de workshop, para compatibilidade com DTOs diferentes no backend, o payload envia:
+
+- data
+- dataHora
+
+com o mesmo valor local.
+
+## 11. Estrutura resumida
+
+```text
+src/
+	app/
+		guards/
+		interceptors/
+		models/
+		pages/
+			login/
+			workshops/
+			colaboradores/
+			presencas/
+		services/
+		utils/
+	environments/
+```
+
+## 12. Troubleshooting
+
+### Erro de CORS
+
+- Garanta que a API permita origem http://localhost:4200.
+
+### Não autentica / 401
+
+- Verifique se o backend está rodando.
+- Verifique credenciais.
+- Verifique validade/expiração de token.
+
+### Lista não atualiza após CRUD
+
+- Confira no DevTools (Network) se a operação retornou sucesso.
+- Confira se houve erro 400/409 com mensagem de validação/regra.
+
+### Horário diferente do digitado
+
+- O frontend já envia horário local.
+- Se persistir divergência, verifique conversão no backend (UTC/local) e mapeamento DTO.
+
+## 13. Qualidade
+
+Antes de subir alterações, recomenda-se executar:
+
+```bash
+npm run build -- --watch=false
+npm run test -- --watch=false
+```
+
+## 14. Observação final
+
+Este frontend foi pensado para integração com a API DesafioFastBackend e já contempla fluxo de autenticação, leitura por Reader e gestão administrativa por Admin.
