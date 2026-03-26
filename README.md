@@ -47,7 +47,7 @@ O projeto possui três áreas principais:
 
 ## 5. Configuração de ambiente
 
-O frontend usa a URL da API em:
+O frontend usa as URLs da API em:
 
 - src/environments/environment.ts
 
@@ -56,6 +56,7 @@ Valor atual:
 ```ts
 export const environment = {
 	apiBaseUrl: 'https://localhost:7114'
+	apiBaseUrls: ['https://localhost:7114', 'http://localhost:5084']
 };
 ```
 
