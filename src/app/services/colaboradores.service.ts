@@ -2,9 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
-import { environment } from '../../environments/environment';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { Colaborador } from '../models/colaborador.model';
+import { ApiUrlService } from './api-url.service';
 
 export interface ColaboradorPayload {
   nome: string;
@@ -12,31 +12,40 @@ export interface ColaboradorPayload {
 
 @Injectable({ providedIn: 'root' })
 export class ColaboradoresService {
-  private readonly apiUrl = `${environment.apiBaseUrl}/api/colaboradores`;
-
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly apiUrlService: ApiUrlService
+  ) {}
 
   getAll(): Observable<Colaborador[]> {
-    return this.http
-      .get<ApiSuccessResponse<Colaborador[]> | null>(this.apiUrl)
+    return this.apiUrlService
+      .request((baseUrl) =>
+        this.http.get<ApiSuccessResponse<Colaborador[]> | null>(`${baseUrl}/api/colaboradores`)
+      )
       .pipe(map((response) => response?.data ?? []));
   }
 
   create(payload: ColaboradorPayload): Observable<void> {
-    return this.http
-      .post<ApiSuccessResponse<Colaborador> | null>(this.apiUrl, payload)
+    return this.apiUrlService
+      .request((baseUrl) =>
+        this.http.post<ApiSuccessResponse<Colaborador> | null>(`${baseUrl}/api/colaboradores`, payload)
+      )
       .pipe(map(() => undefined));
   }
 
   update(id: number, payload: ColaboradorPayload): Observable<void> {
-    return this.http
-      .put<ApiSuccessResponse<Colaborador> | null>(`${this.apiUrl}/${id}`, payload)
+    return this.apiUrlService
+      .request((baseUrl) =>
+        this.http.put<ApiSuccessResponse<Colaborador> | null>(`${baseUrl}/api/colaboradores/${id}`, payload)
+      )
       .pipe(map(() => undefined));
   }
 
   delete(id: number): Observable<void> {
-    return this.http
-      .delete<ApiSuccessResponse<unknown> | null>(`${this.apiUrl}/${id}`)
+    return this.apiUrlService
+      .request((baseUrl) =>
+        this.http.delete<ApiSuccessResponse<unknown> | null>(`${baseUrl}/api/colaboradores/${id}`)
+      )
       .pipe(map(() => undefined));
   }
 }

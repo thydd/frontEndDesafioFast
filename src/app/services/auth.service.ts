@@ -2,24 +2,28 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { Observable, map, tap } from 'rxjs';
 
-import { environment } from '../../environments/environment';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { AuthSession, LoginData, LoginRequest } from '../models/auth.model';
+import { ApiUrlService } from './api-url.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly apiUrl = `${environment.apiBaseUrl}/api/auth`;
   private readonly tokenStorageKey = 'desafiofast_token';
   private readonly userStorageKey = 'desafiofast_user';
   private readonly roleStorageKey = 'desafiofast_role';
 
   readonly session = signal<AuthSession | null>(this.readSessionFromStorage());
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly apiUrlService: ApiUrlService
+  ) {}
 
   login(request: LoginRequest): Observable<void> {
-    return this.http
-      .post<ApiSuccessResponse<LoginData>>(`${this.apiUrl}/login`, request)
+    return this.apiUrlService
+      .request((baseUrl) =>
+        this.http.post<ApiSuccessResponse<LoginData>>(`${baseUrl}/api/auth/login`, request)
+      )
       .pipe(
         map((response) => response.data),
         tap((loginData) => {
